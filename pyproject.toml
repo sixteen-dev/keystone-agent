@@ -1,0 +1,75 @@
+[project]
+name = "keystone-agent"
+version = "0.1.0"
+description = "AI Board of Directors CLI - Your synthetic advisory board"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Keystone Team"}
+]
+keywords = ["ai", "agents", "openai", "cli", "decision-making"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "openai-agents>=0.6.0",
+    "openai>=1.60.0",
+    "typer[all]>=0.15.0",
+    "rich>=13.9.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-dotenv>=1.0.1",
+    "boto3>=1.35.0",
+    "aioboto3>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
+    "moto[dynamodb]>=5.0.0",
+    "boto3-stubs[dynamodb]>=1.35.0",
+]
+viz = [
+    "openai-agents[viz]>=0.6.0",
+]
+
+[project.scripts]
+board = "keystone_agent.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/keystone_agent"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --cov=keystone_agent --cov-report=term-missing"

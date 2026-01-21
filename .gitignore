@@ -1,0 +1,10 @@
+scripts/clear_dynamodb_table.py
+scripts/generate_agent_graph.py
+docs/*
+!docs/PHILOSOPHY.md
+.venv/*
+data/*
+infrastructure
+__pycache__/
+*.pyc
+*.pyo
