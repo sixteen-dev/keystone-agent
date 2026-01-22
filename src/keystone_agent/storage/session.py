@@ -263,11 +263,9 @@ class DynamoDBSession(SessionABC):
                 history.append({
                     "session_id": item["session_id"],
                     "created_at": item["created_at"],
-                    "mode": item.get("mode", "unknown"),
                     "request_summary": item.get("request_text", "")[:200],
                     "verdict": final.get("final_verdict"),
-                    "confidence": final.get("confidence"),
-                    "actions_taken": final.get("next_3_actions", []),
+                    "summary": final.get("final_summary", ""),
                 })
 
             return history

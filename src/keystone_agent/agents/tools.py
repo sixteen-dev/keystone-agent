@@ -209,8 +209,8 @@ def format_history_for_context(history: list[dict]) -> str:
     for h in history[:5]:
         date = h.get("created_at", "N/A")[:10]
         verdict = h.get("verdict", "N/A")
-        confidence = h.get("confidence", 0)
-        summary = h.get("request_summary", "")[:50]
-        lines.append(f"- {date}: {verdict.upper()} ({confidence:.0%}) - {summary}...")
+        question = h.get("request_summary", "")[:100]
+        summary = h.get("summary", "")[:150]
+        lines.append(f"- {date}: {verdict.upper()} | Q: {question}... | {summary}")
 
     return "\n".join(lines)
