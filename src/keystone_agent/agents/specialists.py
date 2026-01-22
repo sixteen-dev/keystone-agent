@@ -103,7 +103,7 @@ def build_specialist_agent(config: SpecialistConfig) -> Agent:
         model=settings.specialist_model,
         output_type=config.output_schema,
         model_settings=ModelSettings(
-            reasoning={"effort": "minimal"},
+            reasoning={"effort": "low"},
         ),
     )
 

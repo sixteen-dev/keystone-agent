@@ -2,10 +2,13 @@
 
 import asyncio
 import json
+import logging
 from typing import Any
 
 from agents import Agent, Runner, function_tool
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 from keystone_agent.agents.specialists import SPECIALIST_CONFIGS, build_specialist_agent
 from keystone_agent.storage.session import DynamoDBSession
@@ -24,6 +27,10 @@ class AllSpecialistsInput(BaseModel):
 
     request_text: str = Field(..., description="The user's request or question")
     mode: str = Field(default="review", description="Mode: review, decide, audit, creative")
+    orchestrator_guidance: str = Field(
+        default="",
+        description="Orchestrator's analysis of the user's plan: current phase, stated next steps, risks they've acknowledged, what to evaluate NOW vs what's deferred"
+    )
     project_history: str = Field(default="", description="Previous board decisions summary")
     option_a: str = Field(default="", description="Option A for decide mode")
     option_b: str = Field(default="", description="Option B for decide mode")
@@ -125,19 +132,24 @@ def build_run_all_specialists_tool(agents: dict[str, Agent]):
 
     @function_tool(
         name_override="run_all_specialists",
-        description_override=(
-            "Run ALL 7 specialist board members in parallel and return their combined analysis. "
-            "Use this to get comprehensive board feedback on the request. "
-            "Returns a JSON object with each specialist's verdict, reasons, risks, and recommendations."
-        ),
+        description_override="Run all 7 specialist board members in parallel and return their combined analysis as a dict.",
     )
     async def run_all_specialists_tool(input: AllSpecialistsInput) -> str:
         """Execute all specialists in parallel and aggregate results."""
 
+        logger.debug(
+            "run_all_specialists called: mode=%s, guidance_length=%d, request=%s...",
+            input.mode,
+            len(input.orchestrator_guidance or ""),
+            input.request_text[:100],
+        )
+
         # Build context string
+        # NOTE: project_history is NOT passed to specialists to avoid anchoring bias
+        # History should only inform the orchestrator's final synthesis
         context_parts = []
-        if input.project_history:
-            context_parts.append(f"Previous decisions:\n{input.project_history}")
+        if input.orchestrator_guidance:
+            context_parts.append(f"ORCHESTRATOR GUIDANCE:\n{input.orchestrator_guidance}")
         if input.option_a:
             context_parts.append(f"Option A: {input.option_a}")
         if input.option_b:
@@ -150,6 +162,8 @@ def build_run_all_specialists_tool(agents: dict[str, Agent]):
             mode=input.mode,
             context=context_str,
         )
+
+        logger.debug("Specialists context: %s", context_str or "(EMPTY)")
 
         # Run all specialists in parallel
         tasks = [run_specialist_agent(agent, specialist_input) for agent in agents.values()]
