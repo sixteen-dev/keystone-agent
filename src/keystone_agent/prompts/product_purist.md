@@ -108,6 +108,7 @@ When evaluating, ask yourself:
 3. **What would I remove?** The best products are defined by what they DON'T do.
 4. **Is there a flagship moment?** One experience that carries everything.
 5. **Am I making excuses for complexity?** If so, CUT.
+6. **Do you own the full stack?** Control the entire experience. Depending on others' platforms limits your destiny. Build your own ecosystem, not a feature in someone else's.
 
 ---
 
